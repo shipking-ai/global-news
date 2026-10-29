@@ -441,6 +441,55 @@
       .tl-item .tt a:hover { text-decoration: underline; }
       .tl-item .ts { font-size: 12px; color: var(--dim); margin: 1px 0 0; }
 
+      /* ---------- archive ---------- */
+      .arch-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; align-items: center; }
+      .arch-tools input[type="search"], .arch-tools input[type="number"], .arch-tools select {
+        border: 1px solid var(--border); background: var(--surface); color: var(--text);
+        padding: 8px 12px; font-size: 14px; border-radius: var(--radius); outline: none;
+      }
+      .arch-tools input[type="search"] { flex: 1; min-width: 180px; }
+      .arch-tools input[type="number"] { width: 130px; }
+      .arch-tools input:focus, .arch-tools select:focus { border-color: var(--accent); }
+      .arch-btn {
+        border: 1px solid var(--text); background: var(--text); color: var(--bg);
+        padding: 8px 16px; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; border-radius: var(--radius);
+      }
+      .arch-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+      .hist-list { list-style: none; margin: 20px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--border); display: grid; gap: 14px; }
+      .hist-item { position: relative; }
+      .hist-item::before { content: ""; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+      .hist-item time { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+      .hist-item .ht { font-family: "Archivo", system-ui, sans-serif; font-size: 16.5px; font-weight: 800; margin: 2px 0 0; }
+      .hist-item .hx { font-size: 14px; color: var(--dim); margin: 3px 0 0; }
+      .hist-item .hl { font-size: 13px; margin: 4px 0 0; }
+      .hist-item .hl a { color: var(--accent); font-weight: 600; }
+      .arch-grid { display: grid; gap: 16px; margin-top: 20px; }
+      @media (min-width: 860px) { .arch-grid { grid-template-columns: 1fr 1fr; } }
+      .arch-card { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius); padding: 20px; }
+      .arch-card h3 { font-family: "Archivo", system-ui, sans-serif; font-size: 19px; font-weight: 800; margin: 4px 0 0; }
+      .arch-card .card-note { font-size: 13.5px; color: var(--dim); margin: 6px 0 0; }
+      .arch-card .card-note a { color: var(--accent); font-weight: 600; }
+      .arch-status { font-size: 13px; color: var(--dim); margin: 12px 0 0; }
+      .arch-status.bad { color: var(--accent); font-weight: 700; }
+      .arch-results { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px solid var(--border); }
+      .arch-results li { padding: 10px 0; border-bottom: 1px solid var(--border); }
+      .arch-results li:last-child { border-bottom: 0; }
+      .arch-results a { font-family: "Archivo", system-ui, sans-serif; font-size: 15px; font-weight: 700; text-decoration: none; }
+      .arch-results a:hover { text-decoration: underline; }
+      .arch-results .rm { font-size: 12px; color: var(--dim); margin: 2px 0 0; }
+      .key-panel { border: 1px dashed var(--dim); background: var(--surface); border-radius: var(--radius); padding: 20px; }
+      .key-panel h3 { font-family: "Archivo", system-ui, sans-serif; font-size: 19px; font-weight: 800; margin: 4px 0 0; }
+      .key-panel .card-note { font-size: 13.5px; color: var(--dim); margin: 6px 0 0; }
+      .key-panel .card-note a { color: var(--accent); font-weight: 600; }
+      .key-panel input[disabled] {
+        width: 100%; margin-top: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--dim);
+        padding: 8px 12px; font-size: 14px; border-radius: var(--radius);
+      }
+      .ledger { list-style: none; margin: 16px 0 0; padding: 0; border-top: 1px solid var(--border); }
+      .ledger li { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+      .ledger .ld { font-family: "Archivo", system-ui, sans-serif; font-weight: 800; font-size: 15px; }
+      .ledger .lm { font-size: 13px; color: var(--dim); }
+
       footer { border-top: 1px solid var(--border); padding-top: 24px; font-size: 12px; color: var(--dim); }
       footer p { margin: 0 0 8px; }
       footer a { color: var(--accent); }
@@ -473,6 +522,7 @@
         <a href="#timelines">Timelines</a>
         <a href="#data">Data</a>
         <a href="#library">Library</a>
+        <a href="#archive">Archive</a>
         <span class="nav-note" id="navNote"></span>
       </nav>
 
@@ -726,6 +776,7 @@
           <div class="channel"><div class="top"><h3>Social wire</h3><span class="chip on">On this page</span></div><p class="beat">Bluesky's public API is free with no key, so outlet posts render as cards here. X, Instagram and Facebook allow single-post embeds but no free feed — that's why they're follow links, not a fake feed.</p></div>
           <div class="channel"><div class="top"><h3>Event globe, maps &amp; data</h3><span class="chip on">On this page</span></div><p class="beat">Open GeoJSON feeds — USGS earthquakes, NASA EONET disasters and wildfires, NOAA alerts, GDELT news signals — refresh in the browser on the globe above. Weather via Open-Meteo (free, no key); markets via TradingView's free widgets, labelled delayed.</p></div>
           <div class="channel"><div class="top"><h3>Breaking alerts &amp; push</h3><span class="chip">Needs a server</span></div><p class="beat">Real web push (OneSignal's free tier covers 10,000 web recipients per message; Firebase/VAPID is the self-hosted route) needs a service worker, an account and each reader's opt-in — none of which a static page can hold. This page uses an in-page wire instead.</p></div>
+          <div class="channel"><div class="top"><h3>Historical archive</h3><span class="chip on">On this page</span></div><p class="beat">In the Archive below: a browsable timeline of major events back to 1776, a live year-by-year lookup of the Library of Congress's Chronicling America newspapers (1789–1963, free, no key), and a live GDELT search. The Guardian (since 1999) and New York Times (since 1851) layers join it when their free keys arrive — they are fetched at build time, never from the browser.</p></div>
           <div class="channel"><div class="top"><h3>News APIs</h3><span class="chip">Needs a server</span></div><p class="beat">NewsData.io's free tier (200 credits/day, 12-hour delay, commercial use allowed) is the best of the keyed APIs; NewsAPI.org's free tier is dev-only with a 24-hour delay and its production tier jumps to $449/mo. Any keyed API needs a build step or proxy — a key in page code is a leaked key.</p></div>
           <div class="channel"><div class="top"><h3>Live chat &amp; comments</h3><span class="chip">Needs a server</span></div><p class="beat">YouTube live chat can sit beside a player, but it needs the current broadcast ID resolved through the Data API and brings a real moderation burden. Self-hosted comments on a breaking-news page are a spam magnet; discussion stays on the platforms.</p></div>
           <div class="channel"><div class="top"><h3>Podcasts &amp; radio</h3><span class="chip on">On this page</span></div><p class="beat">In the Listen section above: native players fed straight from podcast RSS (NPR News Now, The Guardian's Today in Focus), no login and no platform lock-in. Spotify and Apple stay as “listen on…” links beside the players, because their embeds can gate full playback behind an account.</p></div>
@@ -734,6 +785,84 @@
           <div class="channel"><div class="top"><h3>Paywalled live TV</h3><span class="chip">Not used</span></div><p class="beat">CNN, Fox News, MSNBC and CNBC's full feeds sit behind TV-provider logins. The “free CNN live” sites are unofficial re-streams — excluded, always.</p></div>
           <div class="channel"><div class="top"><h3>Live sports scores</h3><span class="chip">Not used</span></div><p class="beat">No dependable free, keyless, embeddable live-scores widget could be verified in research. The honest options are linking to official score pages or paying for a sports data API.</p></div>
         </div>
+      </section>
+
+      <!-- Archive -->
+      <section class="section" id="archive" aria-label="The archive — news back through history">
+        <div class="section-head">
+          <h2>The Archive</h2>
+          <p class="sub">Library · Old news, back to 1789</p>
+        </div>
+        <p class="intro">The wire up top only reaches back a few days — RSS can't go further. This section is the deep past, in honest layers: a timeline of major events you can browse by century, decade, year or topic; live lookups of two free, no-key archives; this site's own snapshots, kept from today onward; and two deeper layers that switch on when their free API keys arrive. Everything here is headlines, short summaries and links to the original reporting — never full copyrighted articles copied in. One honest limit: no archive on earth holds literally every article ever published; a lot of the past is paywalled, undigitised, or lost. This is everything we can actually reach.</p>
+
+        <h3 class="social-sub">Headlines of history — browse by era</h3>
+        <p class="intro">Major world events, in our own words, oldest first. Filter by century or decade, jump to an exact year, or search a topic. Entries from before 1964 link to the actual newspapers published that year, at the Library of Congress.</p>
+        <div class="pills" id="eraPills" role="group" aria-label="Filter history by century" style="margin-top:16px"></div>
+        <div class="arch-tools">
+          <input type="search" id="histQuery" placeholder="Search the timeline — try “moon”, “war”, “vote”…" aria-label="Search the history timeline" />
+          <select id="histDecade" aria-label="Filter history by decade"></select>
+          <input type="number" id="histYear" placeholder="Year — 1969" min="1700" max="2026" aria-label="Jump to an exact year" />
+        </div>
+        <p class="countline" id="histCount" style="margin-top:14px"></p>
+        <ol class="hist-list" id="histList"></ol>
+        <div class="empty" id="histEmpty" hidden>
+          <p class="big">Nothing in the timeline matches that.</p>
+          <p class="small">Try a different year or topic — or search the live archives below, which reach far beyond this shortlist.</p>
+        </div>
+
+        <h3 class="social-sub">Search the real archives — live, no key needed</h3>
+        <div class="arch-grid">
+          <div class="arch-card">
+            <p class="kicker">Library of Congress · Washington</p>
+            <h3>Chronicling America, 1789–1963</h3>
+            <p class="card-note">Over 20 million digitised pages of American newspapers, free with no account. US newspapers published before 1931 are public domain. Pick a year and browse real front pages from it — the lookup below runs live against the Library's own catalogue. For word-by-word searching of the page text itself, use <a href="https://www.loc.gov/collections/chronicling-america/" target="_blank" rel="noreferrer">the collection's own search at loc.gov</a>.</p>
+            <div class="arch-tools">
+              <input type="number" id="caYear" placeholder="Year — 1918" min="1789" max="1963" aria-label="Year to browse in Chronicling America" />
+              <button type="button" class="arch-btn" id="caBtn">Browse that year</button>
+            </div>
+            <p class="arch-status" id="caStatus">Not searched yet — try 1918, 1929 or 1945.</p>
+            <ul class="arch-results" id="caResults"></ul>
+          </div>
+          <div class="arch-card">
+            <p class="kicker">GDELT Project · Global</p>
+            <h3>GDELT — the world's news, indexed</h3>
+            <p class="card-note">GDELT monitors news in over 100 languages and gives its data away free, no key. The live search below queries its DOC index of recent coverage (a rolling window of about three months) and returns headlines and links only. Its coded event archive runs back to 1979, but that depth lives in GDELT's data downloads and BigQuery tables, not this quick search — <a href="https://www.gdeltproject.org/" target="_blank" rel="noreferrer">explore it at gdeltproject.org</a>. GDELT rate-limits shared connections to one request every few seconds, so if it refuses, wait a moment and retry.</p>
+            <div class="arch-tools">
+              <input type="search" id="gdQuery" placeholder="Search recent world news — try “election”…" aria-label="Search GDELT recent coverage" />
+              <button type="button" class="arch-btn" id="gdBtn">Search GDELT</button>
+            </div>
+            <p class="arch-status" id="gdStatus">Not searched yet.</p>
+            <ul class="arch-results" id="gdResults"></ul>
+          </div>
+        </div>
+
+        <h3 class="social-sub">This site's own archive — from today onward</h3>
+        <p class="intro">RSS can't recover the past, but it doesn't have to lose the future: every time this page is rebuilt, its story snapshot is kept here as a permanent entry, so the site grows its own archive from today onward. Nothing is stored in your browser — the ledger below is baked into the page at build time.</p>
+        <ul class="ledger" id="snapLedger"></ul>
+
+        <h3 class="social-sub">Coming when the keys arrive — Guardian &amp; NYT</h3>
+        <p class="intro">Two deeper layers are built into this section's design and switch on the moment their free keys are provided. Until then they show no results at all — an honest empty state, not filler. Keys are used at build time only and are never pasted into this page, where anyone could read them.</p>
+        <div class="arch-grid">
+          <div class="key-panel">
+            <div class="top" style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+              <p class="kicker" style="margin:0">The Guardian · London</p>
+              <span class="chip">Awaiting key</span>
+            </div>
+            <h3>Everything since 1999</h3>
+            <p class="card-note">The Guardian Open Platform holds everything the Guardian has published since 1999 — over 1.9 million articles. A free developer key covers non-commercial use, with a daily ceiling of a few hundred calls, so Guardian results will be fetched at build time and slotted into the same year-and-topic browse above. <a href="https://open-platform.theguardian.com/access/" target="_blank" rel="noreferrer">Get a free Guardian key</a>.</p>
+            <input type="search" disabled placeholder="Guardian search — activates when the key is added" aria-label="Guardian archive search, awaiting API key" />
+          </div>
+          <div class="key-panel">
+            <div class="top" style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+              <p class="kicker" style="margin:0">The New York Times · New York</p>
+              <span class="chip">Awaiting key</span>
+            </div>
+            <h3>Every month since 1851</h3>
+            <p class="card-note">The NYT Archive API returns metadata — headline, abstract, section, byline — for every article published in a given month, back to 1851. The free key allows a few hundred calls a day and its terms bar commercial projects, so it too will be fetched month-by-month at build time into the same browse above, headlines and links only. <a href="https://developer.nytimes.com/get-started" target="_blank" rel="noreferrer">Get a free NYT key</a>.</p>
+            <input type="search" disabled placeholder="NYT search — activates when the key is added" aria-label="New York Times archive search, awaiting API key" />
+          </div>
+        </div>
+        <p class="dir-note">Have the keys? Hand them over through the secure vault — never in a public message — and the next rebuild fills both panels with real results in this same section, no redesign needed.</p>
       </section>
 
       <!-- Channels -->
@@ -1738,6 +1867,209 @@
           return '<div class="tl-card"><p class="kicker">Timeline · ' + hits.length + ' stories in snapshot</p><h3>' + esc(th.title) + "</h3>" +
             '<p class="tl-note">' + esc(th.note + trimmed) + '</p><ol class="tl-list">' + items + "</ol></div>";
         }).join("");
+      })();
+    </script>
+
+    <script>
+      "use strict";
+      /* ---------- the archive: history timeline + live no-key archives + ledger ---------- */
+      (function () {
+        if (typeof esc !== "function") return;
+
+        /* Curated major events — dates and facts as widely recorded; wording is ours,
+           summaries only, with the original papers linked where they survive. */
+        var HIST = [
+          { y: 1776, dl: "4 Jul 1776", t: "America declares independence", x: "The Continental Congress adopts the Declaration of Independence in Philadelphia, announcing the thirteen colonies' break from Britain.", topic: "Politics" },
+          { y: 1789, dl: "14 Jul 1789", t: "The Bastille falls in Paris", x: "A Paris crowd storms the Bastille fortress-prison, the spark that turns unrest into the French Revolution.", topic: "Politics" },
+          { y: 1861, dl: "12 Apr 1861", t: "The American Civil War begins", x: "Confederate guns fire on Fort Sumter in Charleston harbour; the war between North and South will last four years.", topic: "War & peace" },
+          { y: 1865, dl: "15 Apr 1865", t: "President Lincoln assassinated", x: "Abraham Lincoln dies after being shot at Ford's Theatre in Washington, days after the Civil War's effective end.", topic: "Politics" },
+          { y: 1869, dl: "10 May 1869", t: "A railroad spans America", x: "The golden spike at Promontory Summit, Utah, completes the first transcontinental railroad across the United States.", topic: "Science & tech" },
+          { y: 1876, dl: "Mar 1876", t: "Bell patents the telephone", x: "Alexander Graham Bell receives his telephone patent and, days later, makes the first intelligible call to his assistant Watson.", topic: "Science & tech" },
+          { y: 1886, dl: "28 Oct 1886", t: "The Statue of Liberty is dedicated", x: "France's gift to the United States is unveiled in New York Harbor before a crowd of hundreds of thousands.", topic: "Society" },
+          { y: 1903, dl: "17 Dec 1903", t: "First powered flight at Kitty Hawk", x: "Orville Wright flies the Wright Flyer for 12 seconds over the North Carolina dunes — the first powered, controlled aeroplane flight.", topic: "Science & tech" },
+          { y: 1912, dl: "15 Apr 1912", t: "The Titanic sinks", x: "The liner Titanic, on her maiden voyage, sinks in the North Atlantic after striking an iceberg; more than 1,500 people die.", topic: "Disaster" },
+          { y: 1914, dl: "28 Jul 1914", t: "The First World War begins", x: "Austria-Hungary declares war on Serbia, a month after the Sarajevo assassination; Europe's alliances pull the continent into war within days.", topic: "War & peace" },
+          { y: 1918, dl: "11 Nov 1918", t: "Armistice ends the Great War's fighting", x: "At 11 a.m. on the eleventh day of the eleventh month, the guns fall silent on the Western Front.", topic: "War & peace" },
+          { y: 1920, dl: "Aug 1920", t: "US women win the vote nationwide", x: "Tennessee becomes the 36th state to ratify the 19th Amendment, writing women's suffrage into the US Constitution.", topic: "Society" },
+          { y: 1929, dl: "29 Oct 1929", t: "Wall Street crashes", x: "Black Tuesday: the New York Stock Exchange collapses in panic selling, deepening the slide into the Great Depression.", topic: "Economy" },
+          { y: 1945, dl: "2 Sep 1945", t: "The Second World War ends", x: "Japan signs the formal surrender aboard USS Missouri in Tokyo Bay, closing six years of global war.", topic: "War & peace" },
+          { y: 1953, dl: "29 May 1953", t: "Everest is climbed for the first time", x: "Edmund Hillary and Tenzing Norgay stand on the summit of Mount Everest, the first confirmed ascent of the world's highest peak.", topic: "Science & tech" },
+          { y: 1963, dl: "22 Nov 1963", t: "President Kennedy assassinated", x: "John F. Kennedy is shot in Dallas, Texas; Vice-President Lyndon Johnson is sworn in the same day.", topic: "Politics" },
+          { y: 1969, dl: "20 Jul 1969", t: "Humans land on the Moon", x: "Apollo 11's Neil Armstrong and Buzz Aldrin walk on the lunar surface while Michael Collins orbits above — watched live around the world.", topic: "Science & tech" },
+          { y: 1989, dl: "9 Nov 1989", t: "The Berlin Wall falls", x: "East Berliners stream through checkpoints into the West as the Wall opens, setting Germany on the road to reunification.", topic: "Politics" },
+          { y: 1991, dl: "26 Dec 1991", t: "The Soviet Union dissolves", x: "The USSR is formally dissolved, ending the Cold War order that had divided the world since 1945.", topic: "Politics" },
+          { y: 1994, dl: "10 May 1994", t: "Mandela becomes South Africa's president", x: "Nelson Mandela is inaugurated in Pretoria after his country's first democratic elections, ending apartheid rule.", topic: "Politics" },
+          { y: 1997, dl: "1 Jul 1997", t: "Hong Kong returns to China", x: "Britain hands Hong Kong back to China after 156 years, under the promise of “one country, two systems” for fifty years.", topic: "Politics" },
+          { y: 2001, dl: "11 Sep 2001", t: "The September 11 attacks", x: "Hijacked airliners strike the World Trade Center and the Pentagon, and a fourth crashes in Pennsylvania; nearly 3,000 people are killed.", topic: "War & peace" },
+          { y: 2008, dl: "15 Sep 2008", t: "Lehman Brothers collapses", x: "The US investment bank's bankruptcy — the largest in American history — turns a credit crunch into a global financial crisis.", topic: "Economy" },
+          { y: 2011, dl: "11 Mar 2011", t: "Earthquake and tsunami devastate Japan", x: "A magnitude 9.0 earthquake off Tohoku triggers a tsunami that kills more than 18,000 people and cripples the Fukushima Daiichi nuclear plant.", topic: "Disaster" },
+          { y: 2016, dl: "23 Jun 2016", t: "Britain votes to leave the EU", x: "The Brexit referendum returns 52% for Leave, resigning a prime minister and reshaping Britain's place in Europe.", topic: "Politics" },
+          { y: 2020, dl: "11 Mar 2020", t: "COVID-19 declared a pandemic", x: "The World Health Organization declares the coronavirus outbreak a pandemic; within weeks, much of the world is in lockdown.", topic: "Health" },
+          { y: 2022, dl: "24 Feb 2022", t: "Russia invades Ukraine", x: "Russia launches a full-scale invasion of Ukraine, beginning Europe's largest land war since 1945 and driving millions from their homes.", topic: "War & peace" }
+        ];
+
+        var listEl = document.getElementById("histList");
+        var countEl = document.getElementById("histCount");
+        var emptyEl = document.getElementById("histEmpty");
+        var pillsEl = document.getElementById("eraPills");
+        var qEl = document.getElementById("histQuery");
+        var decEl = document.getElementById("histDecade");
+        var yrEl = document.getElementById("histYear");
+        var ERAS = [
+          { id: "all", label: "All eras", test: function () { return true; } },
+          { id: "1700s", label: "1700s", test: function (y) { return y >= 1700 && y < 1800; } },
+          { id: "1800s", label: "1800s", test: function (y) { return y >= 1800 && y < 1900; } },
+          { id: "1900s", label: "1900s", test: function (y) { return y >= 1900 && y < 2000; } },
+          { id: "2000s", label: "2000s", test: function (y) { return y >= 2000; } }
+        ];
+        var era = "all";
+        if (pillsEl) {
+          pillsEl.innerHTML = ERAS.map(function (e) {
+            return '<button type="button" class="pill" data-era="' + e.id + '" aria-pressed="' + (e.id === "all") + '">' + e.label + "</button>";
+          }).join("");
+          pillsEl.addEventListener("click", function (ev) {
+            var b = ev.target.closest("[data-era]"); if (!b) return;
+            era = b.getAttribute("data-era");
+            var btns = pillsEl.querySelectorAll(".pill");
+            for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", String(btns[i].getAttribute("data-era") === era));
+            renderHist();
+          });
+        }
+        if (decEl) {
+          var opts = '<option value="">All decades</option>';
+          for (var d = 1770; d <= 2020; d += 10) opts += '<option value="' + d + '">' + d + "s</option>";
+          decEl.innerHTML = opts;
+          decEl.addEventListener("change", renderHist);
+        }
+        if (qEl) qEl.addEventListener("input", renderHist);
+        if (yrEl) yrEl.addEventListener("input", renderHist);
+
+        function renderHist() {
+          if (!listEl) return;
+          var eraFn = ERAS.filter(function (e) { return e.id === era; })[0].test;
+          var q = qEl ? qEl.value.trim().toLowerCase() : "";
+          var dec = decEl && decEl.value ? parseInt(decEl.value, 10) : null;
+          var yr = yrEl && yrEl.value ? parseInt(yrEl.value, 10) : null;
+          var hits = HIST.filter(function (h) {
+            if (!eraFn(h.y)) return false;
+            if (dec !== null && (h.y < dec || h.y > dec + 9)) return false;
+            if (yr !== null && h.y !== yr) return false;
+            if (q && (h.t + " " + h.x + " " + h.topic + " " + h.y).toLowerCase().indexOf(q) === -1) return false;
+            return true;
+          });
+          countEl.textContent = hits.length + (hits.length === 1 ? " event" : " events") + " in the timeline" +
+            (yr !== null ? " · year " + yr : "") + (q ? " · matching “" + qEl.value.trim() + "”" : "");
+          emptyEl.hidden = hits.length > 0;
+          listEl.innerHTML = hits.map(function (h) {
+            var paper = h.y <= 1963
+              ? '<p class="hl"><a href="https://www.loc.gov/collections/chronicling-america/?dates=' + h.y + '" target="_blank" rel="noreferrer">Read that year\'s newspapers at the Library of Congress ↗</a></p>'
+              : "";
+            return '<li class="hist-item"><time>' + esc(h.dl) + " · " + esc(h.topic) + "</time>" +
+              '<p class="ht">' + esc(h.t) + '</p><p class="hx">' + esc(h.x) + "</p>" + paper + "</li>";
+          }).join("");
+        }
+        renderHist();
+
+        /* ---- Chronicling America: live browse by year (loc.gov JSON, no key, CORS open) ---- */
+        var caBtn = document.getElementById("caBtn");
+        if (caBtn) {
+          var caYear = document.getElementById("caYear");
+          var caStatus = document.getElementById("caStatus");
+          var caResults = document.getElementById("caResults");
+          caBtn.addEventListener("click", function () {
+            var y = parseInt(caYear.value, 10);
+            if (!y || y < 1789 || y > 1963) {
+              caStatus.textContent = "Pick a year between 1789 and 1963 — the archive's digitised range.";
+              caStatus.className = "arch-status bad";
+              return;
+            }
+            caStatus.textContent = "Searching the Library of Congress for " + y + "…";
+            caStatus.className = "arch-status";
+            caResults.innerHTML = "";
+            fetch("https://www.loc.gov/collections/chronicling-america/?dates=" + y + "&fo=json&c=12")
+              .then(function (r) { if (!r.ok) throw new Error("loc " + r.status); return r.json(); })
+              .then(function (d) {
+                var total = d && d.pagination ? d.pagination.total : 0;
+                var rows = (d.results || []).filter(function (it) { return it && it.url && it.title; });
+                if (!rows.length) throw new Error("empty");
+                caStatus.textContent = total.toLocaleString() + " digitised newspaper issues from " + y + " — the first " + rows.length + ":";
+                caResults.innerHTML = rows.map(function (it) {
+                  var meta = [it.date || y, (it.location && it.location.join ? it.location.join(", ") : "")].filter(Boolean).join(" · ");
+                  return '<li><a href="' + esc(it.url) + '" target="_blank" rel="noreferrer">' + esc(it.title) + '</a>' +
+                    (meta ? '<p class="rm">' + esc(meta) + " · Library of Congress</p>" : "") + "</li>";
+                }).join("");
+              })
+              .catch(function () {
+                caStatus.innerHTML = "The Library of Congress lookup didn't return data just now. <a href=\"https://www.loc.gov/collections/chronicling-america/?dates=" + y + "\" target=\"_blank\" rel=\"noreferrer\">Browse " + y + " on loc.gov instead ↗</a>";
+                caStatus.className = "arch-status bad";
+              });
+          });
+        }
+
+        /* ---- GDELT: live recent-coverage search (no key; rate-limited by GDELT) ---- */
+        var gdBtn = document.getElementById("gdBtn");
+        if (gdBtn) {
+          var gdQuery = document.getElementById("gdQuery");
+          var gdStatus = document.getElementById("gdStatus");
+          var gdResults = document.getElementById("gdResults");
+          gdBtn.addEventListener("click", function () {
+            var q = gdQuery.value.trim();
+            if (!q) {
+              gdStatus.textContent = "Type a topic first — a place, an event, a person.";
+              gdStatus.className = "arch-status bad";
+              return;
+            }
+            gdStatus.textContent = "Searching GDELT's recent coverage for “" + q + "”…";
+            gdStatus.className = "arch-status";
+            gdResults.innerHTML = "";
+            var url = "https://api.gdeltproject.org/api/v2/doc/doc?query=" + encodeURIComponent(q) +
+              "&mode=ArtList&format=json&maxrecords=12&sort=DateDesc&timespan=3m";
+            fetch(url)
+              .then(function (r) { return r.text().then(function (t) { return { ok: r.ok, status: r.status, text: t }; }); })
+              .then(function (res) {
+                var data = null;
+                try { data = JSON.parse(res.text); } catch (e) { data = null; }
+                if (!data || !data.articles) {
+                  gdStatus.textContent = res.status === 429
+                    ? "GDELT is rate-limiting this connection (one request every few seconds). Wait a moment and search again."
+                    : "GDELT didn't return article data for that search — it may be rate-limiting or briefly down. Try again shortly.";
+                  gdStatus.className = "arch-status bad";
+                  return;
+                }
+                if (!data.articles.length) {
+                  gdStatus.textContent = "No recent coverage found for “" + q + "” in GDELT's index.";
+                  return;
+                }
+                gdStatus.textContent = data.articles.length + " recent articles on “" + q + "” (headlines and links from GDELT, newest first):";
+                gdResults.innerHTML = data.articles.map(function (a) {
+                  var when = "";
+                  if (a.seendate && a.seendate.length >= 8) {
+                    when = a.seendate.slice(0, 4) + "-" + a.seendate.slice(4, 6) + "-" + a.seendate.slice(6, 8);
+                  }
+                  var meta = [a.domain || "", when, a.sourcecountry || ""].filter(Boolean).join(" · ");
+                  return '<li><a href="' + esc(a.url || "#") + '" target="_blank" rel="noreferrer">' + esc(a.title || a.url || "Untitled") + '</a>' +
+                    (meta ? '<p class="rm">' + esc(meta) + "</p>" : "") + "</li>";
+                }).join("");
+              })
+              .catch(function () {
+                gdStatus.textContent = "Couldn't reach GDELT from this browser just now. The archive itself is at gdeltproject.org — try the search again in a moment.";
+                gdStatus.className = "arch-status bad";
+              });
+          });
+        }
+
+        /* ---- this site's own archive: snapshot ledger ---- */
+        var ledger = document.getElementById("snapLedger");
+        if (ledger && typeof ARTICLES !== "undefined" && typeof FETCHED_AT !== "undefined") {
+          var srcs = {};
+          ARTICLES.forEach(function (a) { if (a.source) srcs[a.source] = true; });
+          var nSrc = Object.keys(srcs).length;
+          ledger.innerHTML =
+            '<li><span class="ld">Snapshot 1 · ' + esc(snapshotLabel(FETCHED_AT)) + '</span>' +
+            '<span class="lm">' + ARTICLES.length + " stories from " + nSrc + " outlets, pulled from the outlets' public RSS feeds. " +
+            "Every story in the wire above belongs to this entry.</span></li>" +
+            '<li><span class="ld">Next snapshot</span><span class="lm">Added at the next rebuild of this page — each rebuild appends its pull here instead of overwriting the last, so the record grows from Oct 2026 onward.</span></li>';
+        }
       })();
     </script>
   </body>
