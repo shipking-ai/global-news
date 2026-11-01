@@ -939,9 +939,21 @@
       document.getElementById("heroStats").textContent =
         ARTICLES.length + " stories from " + (SOURCES.length - 1) + " outlets · snapshot pulled " + snapshotLabel(FETCHED_AT);
 
+      // Hard news first in the Top view: Sport is ranked last, everything
+      // else keeps newest-first order. An explicit Sport filter still works,
+      // because then the whole filtered list is Sport anyway.
+      function isSport(a) { return a.category === "Sport" || a.source === "BBC Sport"; }
+      function rankedList(list) {
+        return list.slice().sort(function (x, y) {
+          var sx = isSport(x) ? 1 : 0, sy = isSport(y) ? 1 : 0;
+          if (sx !== sy) return sx - sy;
+          return y.publishedAt - x.publishedAt;
+        });
+      }
       var hero = null;
-      for (var i = 0; i < ARTICLES.length; i++) { if (ARTICLES[i].imageUrl) { hero = ARTICLES[i]; break; } }
-      if (!hero) hero = ARTICLES[0];
+      var rankedHero = rankedList(ARTICLES);
+      for (var i = 0; i < rankedHero.length; i++) { if (rankedHero[i].imageUrl) { hero = rankedHero[i]; break; } }
+      if (!hero) hero = rankedHero[0];
       if (hero) {
         document.getElementById("topStory").innerHTML =
           '<p class="kicker">Top story · ' + esc(hero.source) + " · " + esc(timeAgo(hero.publishedAt)) + " · " + esc(fullTime(hero.publishedAt)) + "</p>" +
@@ -951,7 +963,7 @@
 
       /* ---------- ticker ---------- */
       (function () {
-        var items = ARTICLES.slice(0, 14);
+        var items = rankedList(ARTICLES).slice(0, 14);
         var html = "";
         var doubled = items.concat(items);
         for (var j = 0; j < doubled.length; j++) {
@@ -1015,7 +1027,7 @@
       var moreRow = document.getElementById("moreRow");
 
       function render() {
-        var list = filtered();
+        var list = rankedList(filtered());
         var body = hero ? list.filter(function (a) { return a.url !== hero.url; }) : list;
         var lead = body[0];
         var rest = lead ? body.slice(1) : body;
@@ -1711,7 +1723,7 @@
       (function () {
         var blog = document.getElementById("blogList");
         if (blog && typeof ARTICLES !== "undefined") {
-          blog.innerHTML = ARTICLES.slice(0, 12).map(function (a) {
+          blog.innerHTML = rankedList(ARTICLES).slice(0, 12).map(function (a) {
             return '<li class="blog-item"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' +
               esc(new Date(a.publishedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })) + "</time>" +
               '<div><p class="bt"><a href="' + esc(a.url) + '" target="_blank" rel="noreferrer">' + esc(a.title) + "</a></p>" +
@@ -2087,10 +2099,12 @@
       }
       function setStatus(text) { if (statusEl) statusEl.textContent = text; }
       function renderTopAndTicker() {
-        // Recompute the top story from the (now merged) ARTICLES array.
+        // Recompute the top story from the (now merged) ARTICLES array,
+        // hard news first, Sport last, same ranking as the grid.
+        var ranked = (typeof rankedList === "function") ? rankedList(ARTICLES) : ARTICLES.slice();
         var h = null;
-        for (var i = 0; i < ARTICLES.length; i++) { if (ARTICLES[i].imageUrl) { h = ARTICLES[i]; break; } }
-        if (!h) h = ARTICLES[0];
+        for (var i = 0; i < ranked.length; i++) { if (ranked[i].imageUrl) { h = ranked[i]; break; } }
+        if (!h) h = ranked[0];
         if (typeof hero !== "undefined") hero = h;
         if (h) {
           document.getElementById("topStory").innerHTML =
@@ -2098,17 +2112,17 @@
             '<h2><a href="' + esc(h.url) + '" target="_blank" rel="noreferrer">' + esc(h.title) + "</a></h2>" +
             (h.description ? '<p class="desc serif">' + esc(h.description) + "</p>" : "");
         }
-        var items = ARTICLES.slice(0, 14);
+        var items = ranked.slice(0, 14);
         var doubled = items.concat(items);
         var html = "";
         for (var j = 0; j < doubled.length; j++) {
           html += '<span><span class="src">' + esc(doubled[j].source) + "</span>" + esc(doubled[j].title) + "</span>";
         }
         document.getElementById("tickerTrack").innerHTML = html;
-        // Live blog: newest 12, same markup as the original blog builder.
+        // Live blog: newest 12 hard-news-first, same markup as the original blog builder.
         var blog = document.getElementById("blogList");
         if (blog) {
-          blog.innerHTML = ARTICLES.slice(0, 12).map(function (a) {
+          blog.innerHTML = ranked.slice(0, 12).map(function (a) {
             return '<li class="blog-item"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' +
               esc(new Date(a.publishedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })) + "</time>" +
               '<div><p class="bt"><a href="' + esc(a.url) + '" target="_blank" rel="noreferrer">' + esc(a.title) + "</a></p>" +
