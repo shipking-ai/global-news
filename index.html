@@ -552,6 +552,7 @@
         <div>
           <h1>The world, as it breaks.</h1>
           <p class="stats" id="heroStats"></p>
+          <p class="stats" id="liveStatus">Live feed: not checked yet — showing the baked-in Oct 28, 2026 snapshot.</p>
           <div class="topstory" id="topStory"></div>
         </div>
       </section>
@@ -2072,5 +2073,136 @@
         }
       })();
     </script>
+  
+    <!-- Live feed polling (new in the live version) -->
+    <script>
+    (function () {
+      "use strict";
+      var statusEl = document.getElementById("liveStatus");
+      var POLL_MS = 5 * 60 * 1000; // 5 minutes
+      var SNAPSHOT_LABEL = "Oct 28, 2026 2:31 PM EDT";
+      function fmtTime(ms) {
+        try { return new Date(ms).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }); }
+        catch (e) { return ""; }
+      }
+      function setStatus(text) { if (statusEl) statusEl.textContent = text; }
+      function renderTopAndTicker() {
+        // Recompute the top story from the (now merged) ARTICLES array.
+        var h = null;
+        for (var i = 0; i < ARTICLES.length; i++) { if (ARTICLES[i].imageUrl) { h = ARTICLES[i]; break; } }
+        if (!h) h = ARTICLES[0];
+        if (typeof hero !== "undefined") hero = h;
+        if (h) {
+          document.getElementById("topStory").innerHTML =
+            '<p class="kicker">Top story · ' + esc(h.source) + " · " + esc(timeAgo(h.publishedAt)) + " · " + esc(fullTime(h.publishedAt)) + "</p>" +
+            '<h2><a href="' + esc(h.url) + '" target="_blank" rel="noreferrer">' + esc(h.title) + "</a></h2>" +
+            (h.description ? '<p class="desc serif">' + esc(h.description) + "</p>" : "");
+        }
+        var items = ARTICLES.slice(0, 14);
+        var doubled = items.concat(items);
+        var html = "";
+        for (var j = 0; j < doubled.length; j++) {
+          html += '<span><span class="src">' + esc(doubled[j].source) + "</span>" + esc(doubled[j].title) + "</span>";
+        }
+        document.getElementById("tickerTrack").innerHTML = html;
+        // Live blog: newest 12, same markup as the original blog builder.
+        var blog = document.getElementById("blogList");
+        if (blog) {
+          blog.innerHTML = ARTICLES.slice(0, 12).map(function (a) {
+            return '<li class="blog-item"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' +
+              esc(new Date(a.publishedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })) + "</time>" +
+              '<div><p class="bt"><a href="' + esc(a.url) + '" target="_blank" rel="noreferrer">' + esc(a.title) + "</a></p>" +
+              '<p class="bs">' + esc(a.source) + " · " + esc(fullTime(a.publishedAt)) + "</p></div></li>";
+          }).join("");
+        }
+        // Story timelines: same four threads, rebuilt from the merged wire.
+        // (Kicker wording changes from "in snapshot" to "in wire" once live
+        // stories are mixed in, so the label never lies about the source.)
+        var host = document.getElementById("tlGrid");
+        if (host) {
+          var has = function (a, words) {
+            var s = (a.title + " " + (a.description || "")).toLowerCase();
+            for (var k = 0; k < words.length; k++) if (s.indexOf(words[k]) === -1) return false;
+            return true;
+          };
+          var THREADS = [
+            { title: "Israel's election — a deadlocked vote", note: "Election coverage from the snapshot: turnout, counting, rival claims and a parliament nobody yet controls.",
+              match: function (a) { return has(a, ["israel"]) && (has(a, ["election"]) || has(a, ["netanyahu"]) || has(a, ["knesset"])); } },
+            { title: "Spain — the high-speed train crash", note: "The collision in central Spain and the rescue and investigation that followed, as each outlet reported it.",
+              match: function (a) { return has(a, ["train"]) && has(a, ["spain"]); } },
+            { title: "Ukraine — war, talks and the front line", note: "The snapshot's Ukraine reporting, from front-line life to the latest round of talks.",
+              match: function (a) { return has(a, ["ukraine"]); } },
+            { title: "The ‘endless cruise' that stopped", note: "A round-the-world cruise sold as a floating home suspends its voyage over fuel costs, stranding its passengers — told in five stories.",
+              match: function (a) { return has(a, ["cruise"]); } }
+          ];
+          host.innerHTML = THREADS.map(function (th) {
+            var hits = ARTICLES.filter(th.match).sort(function (x, y) { return x.publishedAt - y.publishedAt; });
+            if (!hits.length) return "";
+            var shown = hits;
+            var trimmed = "";
+            if (hits.length > 9) { shown = hits.slice(0, 3).concat(hits.slice(-6)); trimmed = " Showing the first 3 and latest 6 of " + hits.length + " stories."; }
+            var items = shown.map(function (a) {
+              return '<li class="tl-item"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' +
+                esc(new Date(a.publishedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })) + "</time>" +
+                '<p class="tt"><a href="' + esc(a.url) + '" target="_blank" rel="noreferrer">' + esc(a.title) + "</a></p>" +
+                '<p class="ts">' + esc(a.source) + "</p></li>";
+            }).join("");
+            return '<div class="tl-card"><p class="kicker">Timeline · ' + hits.length + ' stories in wire</p><h3>' + esc(th.title) + "</h3>" +
+              '<p class="tl-note">' + esc(th.note + trimmed) + '</p><ol class="tl-list">' + items + "</ol></div>";
+          }).join("");
+        }
+        // Header counts.
+        var heroStats = document.getElementById("heroStats");
+        if (heroStats) heroStats.textContent = ARTICLES.length + " stories in the wire · last good snapshot " + SNAPSHOT_LABEL;
+        var tickerMeta = document.getElementById("tickerMeta");
+        if (tickerMeta) tickerMeta.textContent = "Live · updated " + fmtTime(Date.now());
+        var navNote = document.getElementById("navNote");
+        if (navNote) navNote.textContent = ARTICLES.length + " stories · live";
+      }
+      function poll() {
+        if (document.hidden) return; // don't hammer feeds in a background tab
+        if (!window.fetch) return;
+        fetch("/api/feeds", { headers: { "Accept": "application/json" } })
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+          .then(function (data) {
+            if (!data || !data.ok || !Array.isArray(data.articles) || !data.articles.length) {
+              throw new Error("empty live feed");
+            }
+            var seen = {};
+            for (var i = 0; i < ARTICLES.length; i++) seen[ARTICLES[i].url] = true;
+            var added = 0;
+            for (var j = 0; j < data.articles.length; j++) {
+              var a = data.articles[j];
+              if (!a || !a.url || !a.title || typeof a.publishedAt !== "number") continue;
+              if (seen[a.url]) continue;
+              seen[a.url] = true;
+              ARTICLES.push({
+                url: a.url, title: a.title, description: a.description || "",
+                source: a.source, category: a.category || "World",
+                imageUrl: a.imageUrl || null, publishedAt: a.publishedAt
+              });
+              added++;
+            }
+            ARTICLES.sort(function (x, y) { return y.publishedAt - x.publishedAt; });
+            renderTopAndTicker();
+            render(); // existing grid/lead renderer: respects filters, search, saved
+            var cl = document.getElementById("countLine"); if (cl) cl.textContent = cl.textContent.replace("in the snapshot", "in the wire");
+            if (typeof renderSaved === "function" && state && state.showSaved) renderSaved();
+            var failed = (data.feedsFailed && data.feedsFailed.length) ? " · " + data.feedsFailed.length + " feed(s) failed, skipped" : "";
+            setStatus("Live · updated " + fmtTime(data.fetchedAt || Date.now()) + " · " + added + " new stories" + failed + " · Last good snapshot: " + SNAPSHOT_LABEL);
+          })
+          .catch(function (err) {
+            // FALLBACK: keep the baked-in snapshot, never blank the page.
+            setStatus("Live feed unavailable (" + (err && err.message ? err.message : "fetch failed") + ") — showing last good snapshot: " + SNAPSHOT_LABEL);
+          });
+      }
+      // First poll shortly after load (so the first paint is still the
+      // fast baked-in snapshot), then every 5 minutes while the tab is open.
+      setTimeout(poll, 15000);
+      setInterval(poll, POLL_MS);
+      document.addEventListener("visibilitychange", function () { if (!document.hidden) poll(); });
+    })();
+    </script>
+
   </body>
 </html>

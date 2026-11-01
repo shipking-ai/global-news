@@ -1,0 +1,1 @@
+{"description":"Global News — live version with a serverless RSS proxy. No dependencies; the feed function uses only Node's built-in fetch.","engines":{"node":">=18"},"name":"global-news-live","private":true,"version":"1.0.0"}
