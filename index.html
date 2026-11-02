@@ -890,7 +890,7 @@
       var FETCHED_AT = SNAPSHOT.fetchedAt;
 
       var CATEGORIES = ["All", "World", "Politics", "Business", "Technology", "Science", "Health", "Sport", "Culture", "Top Stories"];
-      var SOURCES = ["All", "BBC News", "BBC Sport", "Al Jazeera", "NPR", "The Guardian", "DW News", "France 24", "Sky News", "The New York Times", "CBC News", "ABC News (Australia)", "Euronews", "Politico", "Axios"];
+      var SOURCES = ["All", "BBC News", "BBC Sport", "Al Jazeera", "NPR", "The Guardian", "DW News", "France 24", "Sky News", "The New York Times", "CBC News", "ABC News (Australia)", "Euronews", "Politico", "Axios", "Breaking Defense", "Defense One", "DVIDS", "Military Times", "The War Zone", "Kyiv Independent", "UNIAN", "Ukrainska Pravda", "NBC News", "CBS News", "ABC News (US)", "The Hill", "CNBC", "Ars Technica"];
       var CHANNELS = [
         { name: "BBC News", base: "London", beat: "World, UK politics, business, science", site: "https://www.bbc.co.uk/news/world", siteLabel: "bbc.co.uk/news" },
         { name: "Al Jazeera", base: "Doha", beat: "Middle East, Global South, live coverage", site: "https://www.aljazeera.com", siteLabel: "aljazeera.com", youtube: "http://www.youtube.com/aljazeeraenglish", youtubeLabel: "YouTube channel" },
@@ -2200,6 +2200,21 @@
             ARTICLES.sort(function (x, y) { return y.publishedAt - x.publishedAt; });
             renderTopAndTicker();
             render(); // existing grid/lead renderer: respects filters, search, saved
+            // Outlet filter was built once from a static SOURCES list, so
+            // rebuild it here from SOURCES plus any new source actually
+            // in the wire. The click listener lives on the container,
+            // so replacing its innerHTML is safe, and syncPressed
+            // restores the selected outlet's pressed state.
+            var sl = document.getElementById("sourceLinks");
+            if (sl && typeof SOURCES !== "undefined") {
+              var seenS = {}, srcs = ["All"];
+              SOURCES.forEach(function (x) { if (x !== "All" && !seenS[x]) { seenS[x] = true; srcs.push(x); } });
+              ARTICLES.forEach(function (a) { if (a.source && !seenS[a.source]) { seenS[a.source] = true; srcs.push(a.source); } });
+              sl.innerHTML = srcs.map(function (x) {
+                return '<button type="button" class="sourcelink" data-src="' + esc(x) + '" aria-pressed="' + (x === "All") + '">' + esc(x === "All" ? "All outlets" : x) + "</button>";
+              }).join("");
+              if (typeof syncPressed === "function") syncPressed();
+            }
             var cl = document.getElementById("countLine"); if (cl) cl.textContent = cl.textContent.replace("in the snapshot", "in the wire");
             if (typeof renderSaved === "function" && state && state.showSaved) renderSaved();
             var failed = (data.feedsFailed && data.feedsFailed.length) ? " · " + data.feedsFailed.length + " feed(s) failed, skipped" : "";
