@@ -890,7 +890,7 @@
       var FETCHED_AT = SNAPSHOT.fetchedAt;
 
       var CATEGORIES = ["All", "World", "Politics", "Business", "Technology", "Science", "Health", "Sport", "Culture", "Top Stories"];
-      var SOURCES = ["All", "BBC News", "BBC Sport", "Al Jazeera", "NPR", "The Guardian", "DW News", "France 24", "Sky News", "The New York Times", "CBC News", "ABC News (Australia)", "Euronews", "Politico", "Axios", "Breaking Defense", "Defense One", "DVIDS", "Military Times", "The War Zone", "Kyiv Independent", "UNIAN", "Ukrainska Pravda", "NBC News", "CBS News", "ABC News (US)", "The Hill", "CNBC", "Ars Technica"];
+      var SOURCES = ["All", "BBC News", "BBC Sport", "Al Jazeera", "NPR", "The Guardian", "DW News", "France 24", "Sky News", "The New York Times", "CBC News", "ABC News (Australia)", "Euronews", "Politico", "Axios", "Breaking Defense", "Defense One", "DVIDS", "Military Times", "The War Zone", "Kyiv Independent", "Ukrainska Pravda", "NBC News", "CBS News", "ABC News (US)", "The Hill", "CNBC", "Ars Technica"];
       var CHANNELS = [
         { name: "BBC News", base: "London", beat: "World, UK politics, business, science", site: "https://www.bbc.co.uk/news/world", siteLabel: "bbc.co.uk/news" },
         { name: "Al Jazeera", base: "Doha", beat: "Middle East, Global South, live coverage", site: "https://www.aljazeera.com", siteLabel: "aljazeera.com", youtube: "http://www.youtube.com/aljazeeraenglish", youtubeLabel: "YouTube channel" },
@@ -942,7 +942,20 @@
       // Hard news first in the Top view: Sport is ranked last, everything
       // else keeps newest-first order. An explicit Sport filter still works,
       // because then the whole filtered list is Sport anyway.
-      function isSport(a) { return a.category === "Sport" || a.source === "BBC Sport"; }
+      // Category alone is not enough: outlets label sport stories as
+      // "Top Stories" (e.g. Formula 1, a marathon runner), so also
+      // demote stories whose title/description is clearly sport.
+      // The keyword list is deliberately narrow: bare "golf" is NOT
+      // included, because it would demote legal/political golf-course
+      // stories, and team names alone are not used, to avoid guessing.
+      function isSport(a) {
+        if (a.category === "Sport" || a.source === "BBC Sport") return true;
+        var s = ((a.title || "") + " " + (a.description || "")).toLowerCase();
+        var words = ["formula 1", "premier league", "champions league", "la liga", "serie a", "bundesliga", "world cup", "marathon", "tennis", "football", "soccer", "basketball", "baseball", "cricket", "rugby", "wimbledon", "olympics", "olympian", "nfl", "nba", "mlb", "nhl", "ufc", "boxing match", "golf tournament", "golf championship", "golfer"];
+        for (var i = 0; i < words.length; i++) { if (s.indexOf(words[i]) !== -1) return true; }
+        if (/\bf1\b/.test(s)) return true;
+        return false;
+      }
       function rankedList(list) {
         return list.slice().sort(function (x, y) {
           var sx = isSport(x) ? 1 : 0, sy = isSport(y) ? 1 : 0;
