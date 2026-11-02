@@ -72,15 +72,18 @@ const FEEDS = [
   { source: 'Military Times', category: 'World', url: 'https://www.militarytimes.com/arc/outboundfeeds/rss/' },
   { source: 'The War Zone', category: 'World', url: 'https://twz.com/feed' },
   // Ukraine. Kyiv Independent's feed is listed by Feeder as working
-  // with a post 6 minutes before its check; UNIAN English is listed
-  // at this exact URL in 2026 Ukraine feed directories. Both were
-  // not fetched by the builder's text fetcher (domains blocked
-  // there), so the live check is the final word. Ukrainska Pravda's
+  // with a post 6 minutes before its check. Ukrainska Pravda's
   // listed feed is pravda.com.ua/rss (the outlet's main RSS); it may
   // carry Ukrainian-language items, so it is included for coverage
   // and reported as failed if it does not answer usefully.
+  // UNIAN REMOVED 2026-11-01: its English feed
+  // (rss.unian.net/site/news_eng.rss) loads as RSS but is stale,
+  // newest item May 24, 2024, so its stories never made the 500
+  // newest cap and its filter button showed no stories, while the
+  // feed still counted as "answered". The rss.unian.info variant
+  // listed in its self-link does not resolve (DNS failure, Nov 1,
+  // 2026). Do not re-add UNIAN without a fresh, current feed.
   { source: 'Kyiv Independent', category: 'World', url: 'https://kyivindependent.com/news-archive/rss/' },
-  { source: 'UNIAN', category: 'World', url: 'https://rss.unian.net/site/news_eng.rss' },
   { source: 'Ukrainska Pravda', category: 'World', url: 'https://www.pravda.com.ua/rss' },
   // US politics / midterms. NBC Politics, CBS Politics and ABC
   // News (US) top stories are listed with fresh Oct 2026 items in
@@ -248,19 +251,29 @@ module.exports = async function handler(req, res) {
     const seen = new Set();
     const articles = [];
     const feedsFailed = [];
+    // Per-feed usable article counts, so a feed that answers but
+    // parses to zero stories (e.g. a stale feed like UNIAN was)
+    // cannot hide behind feedsOk alone. feedsEmpty lists those.
+    const feedCounts = [];
+    const feedsEmpty = [];
     let feedsOk = 0;
     for (let i = 0; i < results.length; i++) {
       const r = results[i];
       if (r.status !== 'fulfilled') {
         feedsFailed.push({ source: FEEDS[i].source, url: FEEDS[i].url, error: String((r.reason && r.reason.message) || r.reason || 'fetch failed') });
+        feedCounts.push({ source: FEEDS[i].source, articles: 0 });
         continue;
       }
       feedsOk++;
+      let n = 0;
       for (const a of r.value.articles) {
         if (seen.has(a.url)) continue;
         seen.add(a.url);
         articles.push(a);
+        n++;
       }
+      feedCounts.push({ source: FEEDS[i].source, articles: n });
+      if (n === 0) feedsEmpty.push({ source: FEEDS[i].source, url: FEEDS[i].url, error: 'answered but parsed to zero usable articles' });
     }
     articles.sort((a, b) => b.publishedAt - a.publishedAt);
     const payload = {
@@ -270,6 +283,8 @@ module.exports = async function handler(req, res) {
       feedsOk,
       feedsTotal: FEEDS.length,
       feedsFailed,
+      feedCounts,
+      feedsEmpty,
       // The frontend must keep its baked-in snapshot if this is empty.
       note: 'Headlines and snippets only; every story links to the original outlet.',
     };
