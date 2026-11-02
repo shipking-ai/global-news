@@ -58,11 +58,60 @@ const FEEDS = [
   { source: 'Euronews', category: 'World', url: 'https://www.euronews.com/rss' },
   { source: 'Politico', category: 'Politics', url: 'https://rss.politico.com/politics-news.xml' },
   { source: 'Axios', category: 'Top Stories', url: 'https://api.axios.com/feed/' },
+  // --- Added 2026-11-01: defense, Ukraine, US politics, general ---
+  // Defense / Pentagon. Breaking Defense and Defense One were
+  // fetched and confirmed with Oct 30-31, 2026 items; DVIDS with
+  // Nov 1, 2026 items. Military Times and The War Zone are listed
+  // in 2026 feed directories at these exact URLs; they were not
+  // fetched by the builder's text fetcher (domain blocked there),
+  // so the live /api/feeds check is the final word on them and a
+  // failure is skipped and reported, never faked.
+  { source: 'Breaking Defense', category: 'World', url: 'https://breakingdefense.com/feed/' },
+  { source: 'Defense One', category: 'World', url: 'https://www.defenseone.com/rss/all' },
+  { source: 'DVIDS', category: 'World', url: 'https://www.dvidshub.net/rss/news' },
+  { source: 'Military Times', category: 'World', url: 'https://www.militarytimes.com/arc/outboundfeeds/rss/' },
+  { source: 'The War Zone', category: 'World', url: 'https://twz.com/feed' },
+  // Ukraine. Kyiv Independent's feed is listed by Feeder as working
+  // with a post 6 minutes before its check; UNIAN English is listed
+  // at this exact URL in 2026 Ukraine feed directories. Both were
+  // not fetched by the builder's text fetcher (domains blocked
+  // there), so the live check is the final word. Ukrainska Pravda's
+  // listed feed is pravda.com.ua/rss (the outlet's main RSS); it may
+  // carry Ukrainian-language items, so it is included for coverage
+  // and reported as failed if it does not answer usefully.
+  { source: 'Kyiv Independent', category: 'World', url: 'https://kyivindependent.com/news-archive/rss/' },
+  { source: 'UNIAN', category: 'World', url: 'https://rss.unian.net/site/news_eng.rss' },
+  { source: 'Ukrainska Pravda', category: 'World', url: 'https://www.pravda.com.ua/rss' },
+  // US politics / midterms. NBC Politics, CBS Politics and ABC
+  // News (US) top stories are listed with fresh Oct 2026 items in
+  // a 2026 tested-feed survey; The Hill's feed path is indicated
+  // by a feed mirror listing for thehill.com/news/feed/; NPR
+  // Politics (1014) follows the same feeds.npr.org pattern as the
+  // already-working NPR feed (1001); NYT Politics follows the same
+  // rss.nytimes.com pattern as the already-working NYT feeds.
+  // None of these six were fetched by the builder's text fetcher
+  // (domains blocked there), so the live check is the final word.
+  { source: 'NBC News', category: 'Politics', url: 'https://feeds.nbcnews.com/nbcnews/public/politics' },
+  { source: 'CBS News', category: 'Politics', url: 'https://www.cbsnews.com/latest/rss/politics' },
+  { source: 'ABC News (US)', category: 'Top Stories', url: 'https://abcnews.go.com/abcnews/topstories' },
+  { source: 'The Hill', category: 'Politics', url: 'https://thehill.com/news/feed/' },
+  { source: 'NPR', category: 'Politics', url: 'https://feeds.npr.org/1014/rss.xml' },
+  { source: 'The New York Times', category: 'Politics', url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml' },
+  // General gaps: business, technology, and a major US paper.
+  // CNBC's top-news feed is listed at this exact URL in 2026 feed
+  // directories; Ars Technica's main feed is listed in multiple
+  // 2026 tech-feed surveys with ~299 posts in the last 30 days.
+  // Washington Post was tried and REMOVED: its world feed
+  // (feeds.washingtonpost.com/rss/world) aborted in the Nov 1, 2026
+  // smoke test, matching Oct 2026 reports of server errors on WaPo
+  // feeds. Do not re-add it without a fresh passing fetch.
+  { source: 'CNBC', category: 'Business', url: 'https://www.cnbc.com/id/100003114/device/rss/rss.html' },
+  { source: 'Ars Technica', category: 'Technology', url: 'https://feeds.arstechnica.com/arstechnica/index' },
 ];
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes, in memory
 const PER_FEED_ITEMS = 25;
-const TOTAL_ITEMS = 400;
+const TOTAL_ITEMS = 500; // Raised from 400 when the feed count grew 24 -> 40, so older-but-still-recent stories (e.g. Oct 29-30 Pentagon news) are less likely to be cut by Nov 1-2 volume. Fetching is parallel, so this does not add fetch time.
 const FETCH_TIMEOUT_MS = 8000;
 
 let cache = null; // { fetchedAt, payload }
