@@ -1876,7 +1876,9 @@
           { title: "Ukraine — war, talks and the front line", note: "The snapshot's Ukraine reporting, from front-line life to the latest round of talks.",
             match: function (a) { return has(a, ["ukraine"]); } },
           { title: "The ‘endless cruise' that stopped", note: "A round-the-world cruise sold as a floating home suspends its voyage over fuel costs, stranding its passengers — told in five stories.",
-            match: function (a) { return has(a, ["cruise"]); } }
+            match: function (a) { return has(a, ["cruise"]); } },
+          { title: "US Midterms — the race for Congress and the states", note: "US midterm coverage grouped into the gridlock outcome: House, Senate and governors' races. No winner forecast — any calls shown are projections, not certified results.",
+            match: function (a) { return (has(a, ["midterm"]) || (has(a, ["election"]) && (has(a, ["senate"]) || has(a, ["house"]) || has(a, ["governor"]) || has(a, ["congress"])))) && !has(a, ["israel"]); } }
         ];
         host.innerHTML = THREADS.map(function (th) {
           var hits = ARTICLES.filter(th.match).sort(function (x, y) { return x.publishedAt - y.publishedAt; });
@@ -2142,7 +2144,7 @@
               '<p class="bs">' + esc(a.source) + " · " + esc(fullTime(a.publishedAt)) + "</p></div></li>";
           }).join("");
         }
-        // Story timelines: same four threads, rebuilt from the merged wire.
+        // Story timelines: same five threads, rebuilt from the merged wire.
         // (Kicker wording changes from "in snapshot" to "in wire" once live
         // stories are mixed in, so the label never lies about the source.)
         var host = document.getElementById("tlGrid");
@@ -2160,7 +2162,9 @@
             { title: "Ukraine — war, talks and the front line", note: "The snapshot's Ukraine reporting, from front-line life to the latest round of talks.",
               match: function (a) { return has(a, ["ukraine"]); } },
             { title: "The ‘endless cruise' that stopped", note: "A round-the-world cruise sold as a floating home suspends its voyage over fuel costs, stranding its passengers — told in five stories.",
-              match: function (a) { return has(a, ["cruise"]); } }
+              match: function (a) { return has(a, ["cruise"]); } },
+            { title: "US Midterms — the race for Congress and the states", note: "US midterm coverage grouped into the gridlock outcome: House, Senate and governors' races. No winner forecast — any calls shown are projections, not certified results.",
+              match: function (a) { return (has(a, ["midterm"]) || (has(a, ["election"]) && (has(a, ["senate"]) || has(a, ["house"]) || has(a, ["governor"]) || has(a, ["congress"])))) && !has(a, ["israel"]); } }
           ];
           host.innerHTML = THREADS.map(function (th) {
             var hits = ARTICLES.filter(th.match).sort(function (x, y) { return x.publishedAt - y.publishedAt; });
