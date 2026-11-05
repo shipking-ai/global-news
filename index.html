@@ -1013,6 +1013,32 @@
         return '<button type="button" class="save-btn" data-save="' + esc(a.url) + '" aria-pressed="' + on + '" aria-label="' +
           (on ? "Remove bookmark: " : "Bookmark: ") + esc(a.title) + '">' + (on ? "Saved" : "Save") + "</button>";
       }
+      // Translate: any story that still arrives in another language
+      // (Cyrillic, Greek, Arabic, Hebrew, CJK, Korean, etc.) gets a
+      // Translate button on its card/lead. It uses the free MyMemory
+      // API with auto-detected source language, no key, and falls
+      // back to opening the article in Google Translate if that
+      // API fails. Translated text replaces the card text in place
+      // and is marked, so it is never presented as the original.
+      function needsTranslate(a) {
+        if (a.translated) return false;
+        var s = (a.title || "") + " " + (a.description || "");
+        return /[\u0400-\u04FF\u0370-\u03FF\u0590-\u05FF\u0600-\u06FF\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/.test(s);
+      }
+      function translateBtn(a) {
+        if (a.translated) return '<span class="save-btn" style="pointer-events:none">Translated to English</span>';
+        if (!needsTranslate(a)) return "";
+        return '<button type="button" class="save-btn" data-translate="' + esc(a.url) + '">Translate to English</button>';
+      }
+      function translateText(text) {
+        return fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=auto|en")
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            var t = d && d.responseData && d.responseData.translatedText;
+            if (!t || t === text) throw new Error("no translation");
+            return t;
+          });
+      }
       function cardHtml(a) {
         return '<article class="card">' +
           (a.imageUrl ? '<a class="card-img" href="' + esc(a.url) + '" target="_blank" rel="noreferrer"><img src="' + esc(a.imageUrl) + '" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'" /></a>' : "") +
@@ -1020,7 +1046,7 @@
           '<p class="kicker">' + esc(a.source) + " · " + esc(a.category) + "</p>" +
           '<h3><a href="' + esc(a.url) + '" target="_blank" rel="noreferrer">' + esc(a.title) + "</a></h3>" +
           (a.description ? '<p class="desc serif">' + esc(a.description) + "</p>" : "") +
-          '<div class="foot"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' + esc(timeAgo(a.publishedAt)) + " · " + esc(fullTime(a.publishedAt)) + "</time>" + saveBtn(a) + "</div>" +
+          '<div class="foot"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' + esc(timeAgo(a.publishedAt)) + " · " + esc(fullTime(a.publishedAt)) + "</time>" + translateBtn(a) + saveBtn(a) + "</div>" +
           "</div></article>";
       }
       function leadHtml(a) {
@@ -1030,7 +1056,7 @@
           '<p class="kicker">Lead story · ' + esc(a.source) + " · " + esc(a.category) + "</p>" +
           '<h2><a href="' + esc(a.url) + '" target="_blank" rel="noreferrer">' + esc(a.title) + "</a></h2>" +
           (a.description ? '<p class="desc serif">' + esc(a.description) + "</p>" : "") +
-          '<div class="foot"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' + esc(timeAgo(a.publishedAt)) + " · " + esc(fullTime(a.publishedAt)) + "</time>" + saveBtn(a) + "</div>" +
+          '<div class="foot"><time datetime="' + new Date(a.publishedAt).toISOString() + '">' + esc(timeAgo(a.publishedAt)) + " · " + esc(fullTime(a.publishedAt)) + "</time>" + translateBtn(a) + saveBtn(a) + "</div>" +
           "</div></article>";
       }
 
@@ -1108,6 +1134,34 @@
           for (var i = 0; i < ARTICLES.length; i++) if (ARTICLES[i].url === url) { saved[url] = ARTICLES[i]; break; }
         }
         render(); if (state.showSaved) renderSaved();
+      });
+      document.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-translate]"); if (!b) return;
+        var url = b.getAttribute("data-translate");
+        var art = null;
+        for (var i = 0; i < ARTICLES.length; i++) if (ARTICLES[i].url === url) { art = ARTICLES[i]; break; }
+        if (!art) return;
+        b.textContent = "Translating…"; b.disabled = true;
+        var jobs = [translateText(art.title)];
+        if (art.description) jobs.push(translateText(art.description));
+        Promise.all(jobs).then(function (out) {
+          art.title = out[0];
+          if (out[1]) art.description = out[1];
+          art.translated = true;
+          render();
+          if (typeof hero !== "undefined" && hero && hero.url === url) {
+            var top = document.getElementById("topStory");
+            if (top) top.innerHTML =
+              '<p class="kicker">Top story · ' + esc(art.source) + " · " + esc(timeAgo(art.publishedAt)) + " · " + esc(fullTime(art.publishedAt)) + "</p>" +
+              '<h2><a href="' + esc(art.url) + '" target="_blank" rel="noreferrer">' + esc(art.title) + "</a></h2>" +
+              (art.description ? '<p class="desc serif">' + esc(art.description) + "</p>" : "");
+          }
+        }).catch(function () {
+          // Translation API failed: fall back to Google Translate
+          // for the original article, in a new tab, and restore the button.
+          window.open("https://translate.google.com/translate?sl=auto&tl=en&u=" + encodeURIComponent(url), "_blank", "noreferrer");
+          b.textContent = "Translate to English"; b.disabled = false;
+        });
       });
 
       /* ---------- channels ---------- */
