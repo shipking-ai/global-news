@@ -72,10 +72,12 @@ const FEEDS = [
   { source: 'Military Times', category: 'World', url: 'https://www.militarytimes.com/arc/outboundfeeds/rss/' },
   { source: 'The War Zone', category: 'World', url: 'https://twz.com/feed' },
   // Ukraine. Kyiv Independent's feed is listed by Feeder as working
-  // with a post 6 minutes before its check. Ukrainska Pravda's
-  // listed feed is pravda.com.ua/rss (the outlet's main RSS); it may
-  // carry Ukrainian-language items, so it is included for coverage
-  // and reported as failed if it does not answer usefully.
+  // with a post 6 minutes before its check. Ukrainska Pravda uses
+  // its ENGLISH feed (pravda.com.ua/eng/rss, verified live Nov 4,
+  // 2026: channel language en, 20 items, all English, newest Nov 4,
+  // 2026), NOT its main Ukrainian feed (pravda.com.ua/rss), so its
+  // cards arrive in English and do not need translation. The main
+  // feed was the source of Ukrainian-language cards on the site.
   // UNIAN REMOVED 2026-11-01: its English feed
   // (rss.unian.net/site/news_eng.rss) loads as RSS but is stale,
   // newest item May 24, 2024, so its stories never made the 500
@@ -84,7 +86,7 @@ const FEEDS = [
   // listed in its self-link does not resolve (DNS failure, Nov 1,
   // 2026). Do not re-add UNIAN without a fresh, current feed.
   { source: 'Kyiv Independent', category: 'World', url: 'https://kyivindependent.com/news-archive/rss/' },
-  { source: 'Ukrainska Pravda', category: 'World', url: 'https://www.pravda.com.ua/rss' },
+  { source: 'Ukrainska Pravda', category: 'World', url: 'https://www.pravda.com.ua/eng/rss' },
   // US politics / midterms. NBC Politics, CBS Politics and ABC
   // News (US) top stories are listed with fresh Oct 2026 items in
   // a 2026 tested-feed survey; The Hill's feed path is indicated
