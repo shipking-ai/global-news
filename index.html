@@ -387,6 +387,11 @@
         margin-top: 16px; border: 2px solid var(--accent); background: var(--surface);
         padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; border-radius: var(--radius);
       }
+      /* Dismiss fix: display:flex above overrides the hidden
+         attribute, so Dismiss (banner.hidden = true) had no effect
+         in production. This rule restores it. Same pattern as the
+         old .tv-off overlay bug. */
+      .breaking[hidden] { display: none; }
       .breaking .bbadge {
         flex-shrink: 0; background: var(--accent); color: var(--accent-ink);
         font-family: "Archivo", system-ui, sans-serif; font-size: 11px; font-weight: 900;
