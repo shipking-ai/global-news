@@ -1867,11 +1867,21 @@
         }
         var banner = document.getElementById("breakingBanner");
         if (banner && typeof ARTICLES !== "undefined" && ARTICLES.length) {
-          var top = ARTICLES[0];
+          // Banner must be DIFFERENT from the Top story, not a copy of
+          // it: use the next story in the same hard-news-first ranking,
+          // skipping the Top hero. Previously this used ARTICLES[0],
+          // the newest snapshot story, which was the Oct 28 cruise
+          // story, and it never updated on the live poll, so it sat
+          // above the hero looking like top news for a week.
+          var ranked0 = (typeof rankedList === "function") ? rankedList(ARTICLES) : ARTICLES.slice();
+          var heroUrl0 = (typeof hero !== "undefined" && hero) ? hero.url : (ranked0[0] && ranked0[0].url);
+          var second0 = null;
+          for (var bi = 0; bi < ranked0.length; bi++) { if (ranked0[bi].url !== heroUrl0) { second0 = ranked0[bi]; break; } }
+          var top = second0 || ranked0[0];
           document.getElementById("breakingText").innerHTML =
             '<a href="' + esc(top.url) + '" target="_blank" rel="noreferrer">' + esc(top.title) + "</a>";
           document.getElementById("breakingMeta").textContent =
-            top.source + " · " + fullTime(top.publishedAt) + " · newest story in the snapshot pulled " + snapshotLabel(FETCHED_AT);
+            top.source + " · " + fullTime(top.publishedAt) + " · next story after Top, from the snapshot pulled " + snapshotLabel(FETCHED_AT);
           banner.hidden = false;
           document.getElementById("breakingDismiss").addEventListener("click", function () { banner.hidden = true; });
         }
@@ -2180,6 +2190,20 @@
             '<p class="kicker">Top story · ' + esc(h.source) + " · " + esc(timeAgo(h.publishedAt)) + " · " + esc(fullTime(h.publishedAt)) + "</p>" +
             '<h2><a href="' + esc(h.url) + '" target="_blank" rel="noreferrer">' + esc(h.title) + "</a></h2>" +
             (h.description ? '<p class="desc serif">' + esc(h.description) + "</p>" : "");
+          // Banner follows the live wire too, but stays DIFFERENT
+          // from Top: next story in the ranked list, skipping Top.
+          // It never un-hides itself if the user dismissed it.
+          var bb = document.getElementById("breakingBanner");
+          var bt = document.getElementById("breakingText");
+          var bm = document.getElementById("breakingMeta");
+          if (bb && bt && bm) {
+            var second = null;
+            for (var si = 0; si < ranked.length; si++) { if (ranked[si].url !== h.url) { second = ranked[si]; break; } }
+            if (second) {
+              bt.innerHTML = '<a href="' + esc(second.url) + '" target="_blank" rel="noreferrer">' + esc(second.title) + "</a>";
+              bm.textContent = second.source + " · " + fullTime(second.publishedAt) + " · next story after Top, live";
+            }
+          }
         }
         var items = ranked.slice(0, 14);
         var doubled = items.concat(items);
