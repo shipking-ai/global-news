@@ -60,7 +60,11 @@
 
       /* ---------- ticker ---------- */
       .tickerbar {
-        position: sticky; top: 0; z-index: 30;
+        /* Not sticky: it shared top:0 with the masthead, so the
+           masthead slid over it, and together with the sticky
+           controls it formed a ~200px stack that covered section
+           content scrolling underneath. Only the masthead sticks. */
+        position: static;
         border-bottom: 2px solid var(--text);
         background: var(--bg);
         display: flex; align-items: stretch;
@@ -134,7 +138,11 @@
 
       /* ---------- controls ---------- */
       .controls {
-        position: sticky; top: 75px; z-index: 20;
+        /* Not sticky: its containing block is the whole .wrap, so it
+           stuck at top:75px for the entire page and covered Watch /
+           Listen / etc. content scrolling underneath it. Filters now
+           scroll away normally; the masthead stays as the one sticky bar. */
+        position: static;
         margin: 0 -16px; padding: 12px 16px;
         border-bottom: 1px solid var(--border); background: var(--bg);
         display: flex; flex-direction: column; gap: 12px;
@@ -379,8 +387,12 @@
       .mainnav {
         margin: 0 -16px; padding: 12px 16px;
         background: var(--text); color: var(--bg);
-        display: flex; flex-wrap: nowrap; gap: 8px; align-items: center;
-        overflow-x: auto; scrollbar-width: thin;
+        /* Chips wrap to a second row instead of overflowing: at the
+           760px feed width 10 chips + the note cannot fit in one row,
+           so nowrap + overflow-x left LIBRARY/ARCHIVE cut off with a
+           stray horizontal scrollbar. Wrapping shows every label. */
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        overflow-x: visible;
       }
       .mainnav a {
         flex-shrink: 0; color: var(--bg); text-decoration: none; padding: 10px 14px; min-height: 44px;
@@ -390,9 +402,10 @@
         border: 1px solid rgba(255,255,255,.35); border-radius: 999px;
       }
       .mainnav a:hover, .mainnav a:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
-      .mainnav .nav-note { margin-left: auto; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; padding: 6px 4px; }
+      .mainnav .nav-note { margin-left: 0; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .6; padding: 6px 4px; }
       @media (max-width: 720px) { .mainnav .nav-note { display: none; } }
-      section[id], div[id="globe"] { scroll-margin-top: 260px; }
+      section[id], div[id="globe"] { scroll-margin-top: 84px; }
+      canvas#globe { scroll-margin-top: 84px; }
       .breaking {
         margin-top: 16px; border: 2px solid var(--accent); background: var(--surface);
         padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; border-radius: var(--radius);
@@ -420,8 +433,7 @@
       details.catalog .catalog-body { padding: 0 16px 16px; }
       @media (max-width: 720px) {
         .mainnav { position: static; }
-        .controls { top: 75px; }
-        section[id], div[id="globe"] { scroll-margin-top: 260px; }
+        section[id], div[id="globe"] { scroll-margin-top: 84px; }
       }
       /* ---------- clips ---------- */
       .clip-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
@@ -614,6 +626,55 @@
         .lead h2 { font-size: 26px; }
         .hero h1 { font-size: 36px; }
         .globe-box { height: 340px; }
+      }
+
+      /* ===== MOBILE BREATHING ROOM (phones 360-430px) =====
+         The feed felt cramped on phones: 16px side padding, tight
+         card/section gaps, and a 380px globe + tall sticky bar eating
+         the viewport. Loosen it: wider side padding, more vertical
+         space everywhere, roomier card bodies, a shorter globe, and a
+         slimmer sticky bar, while keeping the bold look. Tap targets
+         stay >=44px (they already were); nothing here shrinks them. */
+      @media (max-width: 720px) {
+        .wrap { padding: 0 20px 88px; }
+        .tickerbar { font-size: 14px; }
+        .masthead { margin: 0 -20px; padding: 10px 20px; gap: 10px; }
+        .masthead img { width: 40px; height: 40px; }
+        .masthead .name { font-size: 24px; }
+        .masthead .date { font-size: 10px; letter-spacing: .14em; }
+        .masthead .live-status { font-size: 12px; }
+        .refresh-btn { min-height: 44px; padding: 10px 12px; }
+        .mainnav { margin: 0 -20px; padding: 12px 20px; gap: 10px; }
+        .breaking { margin: 20px 0 0; padding: 16px 18px; }
+        .hero { padding: 24px 0 12px; }
+        .hero h1 { font-size: 34px; line-height: 1.05; margin-top: 16px; }
+        .globe-box { height: 300px; margin-bottom: 8px; }
+        .globe-hint { bottom: 10px; left: 10px; }
+        .layer-panel { padding: 20px; margin-top: 16px; }
+        .controls { margin: 20px -20px 0; padding: 18px 20px; gap: 16px; }
+        .pills { gap: 10px; padding-bottom: 6px; }
+        .stories { padding: 28px 0 12px; }
+        .urgent-section { margin: 0 -20px 32px; padding: 24px 20px 28px; }
+        .urgent-head h2 { font-size: 24px; }
+        .topstory { margin-bottom: 32px; }
+        .topstory .top-body { padding: 24px 20px; }
+        .topstory h2 { font-size: 30px; line-height: 1.12; }
+        .topstory .desc { font-size: 17px; line-height: 1.55; }
+        .lead { margin-bottom: 8px; }
+        .lead .lead-body { padding: 24px 20px; }
+        .lead h2 { font-size: 26px; line-height: 1.15; }
+        .lead .desc { font-size: 17px; line-height: 1.55; }
+        .grid { gap: 32px; }
+        .card .card-body { padding: 24px 20px; gap: 12px; }
+        .card h3 { font-size: 22px; line-height: 1.25; }
+        .card .desc { font-size: 15px; line-height: 1.6; }
+        .card .foot, .lead .foot, .topstory .foot { gap: 10px; }
+        .more-row { margin-top: 32px; }
+        .section { padding: 40px 0; }
+        .section h2 { font-size: 30px; line-height: 1.1; }
+        .section .intro { font-size: 15px; line-height: 1.6; }
+        .blog-item { padding: 16px 0; }
+        .layer-toggles { gap: 10px; }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -1113,6 +1174,10 @@
       }
       function urgentBadge() { return '<span class="urgent-badge"><span class="urgent-dot"></span>Breaking · Urgent</span>'; }
 
+      var state = { category: "All", source: "All", query: "", showSaved: false, shown: 60 };
+      var saved = {}; // url -> article, this visit only; assigned BEFORE the hero render (see note above)
+      var PAGE = 60;
+
       var hero = null;
       var rankedHero = rankedList(ARTICLES);
       for (var i = 0; i < rankedHero.length; i++) { if (rankedHero[i].imageUrl) { hero = rankedHero[i]; break; } }
@@ -1139,9 +1204,16 @@
       })();
 
       /* ---------- state + rendering ---------- */
-      var state = { category: "All", source: "All", query: "", showSaved: false, shown: 60 };
-      var saved = {}; // url -> article, this visit only
-      var PAGE = 60;
+      /* NOTE: `saved` must be assigned BEFORE the hero render below:
+         the hero calls saveBtn(), which reads saved[a.url]. When the
+         declaration lived after the hero, `saved` was still undefined
+         (hoisted var, assignment never reached) and saveBtn threw
+         "Cannot read properties of undefined (reading '<hero url>')",
+         aborting the rest of script 0 (ticker, grid, lead, globe,
+         blog, social) and leaving `saved` undefined forever, so the
+         live poll in script 3 threw the same error on its first
+         article. That is the whole Top/grid/blog/social/live-feed
+         failure. It is fixed by declaring state here, up front. */
 
       var catPills = document.getElementById("catPills");
       catPills.innerHTML = CATEGORIES.map(function (c) {
@@ -1162,7 +1234,7 @@
         });
       }
       function saveBtn(a) {
-        var on = !!saved[a.url];
+        var on = !!(saved && saved[a.url]);
         return '<button type="button" class="save-btn" data-save="' + esc(a.url) + '" aria-pressed="' + on + '" aria-label="' +
           (on ? "Remove bookmark: " : "Bookmark: ") + esc(a.title) + '">' + (on ? "Saved" : "Save") + "</button>";
       }
@@ -1688,7 +1760,7 @@
         function draw(t) {
           var dark = darkMq.matches;
           var ink = "242,239,231";
-          var wire = "150,142,126";
+          var wire = "165,157,140";
           var face = "#0e0d0c";
           ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
           ctx.clearRect(0, 0, W, H);
@@ -1703,7 +1775,7 @@
           ctx.beginPath(); ctx.arc(cxp, cyp, R * 0.995, 0, Math.PI * 2);
           ctx.fillStyle = face; ctx.globalAlpha = 0.96; ctx.fill(); ctx.globalAlpha = 1;
           // graticule
-          ctx.strokeStyle = "rgba(" + wire + ",0.35)"; ctx.lineWidth = 0.6;
+          ctx.strokeStyle = "rgba(" + wire + ",0.45)"; ctx.lineWidth = 0.6;
           var lat, lon, p, k;
           for (lat = -60; lat <= 60; lat += 30) {
             ctx.beginPath();
@@ -1721,7 +1793,7 @@
             if (d[2] <= 0) continue;
             ctx.beginPath();
             ctx.arc(cxp + d[0] * R, cyp - d[1] * R, 1.3, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(" + ink + "," + (0.18 + d[2] * 0.4).toFixed(3) + ")";
+            ctx.fillStyle = "rgba(" + ink + "," + (0.28 + d[2] * 0.4).toFixed(3) + ")";
             ctx.fill();
           }
           // outline
