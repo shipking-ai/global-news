@@ -42,6 +42,36 @@
           --shadow-lg: 0 22px 48px rgba(0, 0, 0, 0.60);
         }
       }
+      /* Manual theme toggle: html[data-theme] overrides the system
+         setting above (same vars, higher specificity). The toggle
+         button in the masthead sets this; saved choice in localStorage
+         wins, otherwise the system setting is used (see head script). */
+      html[data-theme="light"] {
+        color-scheme: light;
+        --bg: #f4f1e8;
+        --surface: #fffdf6;
+        --surface-alt: #ece7d8;
+        --text: #141210;
+        --dim: #5f5a4e;
+        --border: #cfc7b2;
+        --accent: #d92323;
+        --accent-ink: #ffffff;
+        --shadow: 0 10px 30px rgba(20, 18, 16, 0.12);
+        --shadow-lg: 0 22px 48px rgba(20, 18, 16, 0.20);
+      }
+      html[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0b0a09;
+        --surface: #171512;
+        --surface-alt: #221e19;
+        --text: #f5f1e6;
+        --dim: #b0a894;
+        --border: #3d362c;
+        --accent: #ff4d42;
+        --accent-ink: #160b0a;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        --shadow-lg: 0 22px 48px rgba(0, 0, 0, 0.60);
+      }
       * { box-sizing: border-box; }
       html { -webkit-text-size-adjust: 100%; }
       body {
@@ -106,6 +136,8 @@
       .masthead .live-status::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 6px; animation: ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
       .refresh-btn { margin-left: auto; flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); color: var(--text); min-height: 44px; padding: 10px 16px; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border-radius: var(--radius); cursor: pointer; }
       .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+      .theme-btn { margin-left: 0; white-space: nowrap; }
+      .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
       .masthead img { width: 44px; height: 44px; border-radius: var(--radius); flex-shrink: 0; }
       @media (min-width: 768px) { .masthead img { width: 48px; height: 48px; } }
       .masthead .name { font-family: "Archivo", system-ui, sans-serif; font-size: 22px; line-height: 1; font-weight: 900; letter-spacing: -0.02em; }
@@ -702,7 +734,45 @@
         .layer-panel .globe-info { background: #221e19; }
         .ltoggle .swatch { box-shadow: 0 0 0 1px rgba(245,241,230,.45); }
       }
+      /* Same fixes when dark is forced by the Theme toggle on a
+         light-system device (the media query above would not fire). */
+      html[data-theme="dark"] .layer-panel { border-color: #3d362c; }
+      html[data-theme="dark"] .layer-panel .ltoggle { background: #221e19; border-color: #57503f; }
+      html[data-theme="dark"] .layer-panel .globe-info { background: #221e19; }
+      html[data-theme="dark"] .ltoggle .swatch { box-shadow: 0 0 0 1px rgba(245,241,230,.45); }
     </style>
+    <!-- Theme toggle: apply the saved choice (localStorage "gn-theme")
+         before first paint so there is no light/dark flash; otherwise
+         fall back to the system setting. Defines window.gnIsDark /
+         window.gnSetTheme, used by the globe and markets tape. -->
+    <script>
+      window.gnIsDark = function () {
+        var t = document.documentElement.getAttribute("data-theme");
+        if (t === "dark" || t === "light") return t === "dark";
+        try { return window.matchMedia("(prefers-color-scheme: dark)").matches; }
+        catch (e) { return false; }
+      };
+      window.gnSetTheme = function (mode) {
+        if (mode !== "dark" && mode !== "light") return;
+        document.documentElement.setAttribute("data-theme", mode);
+        try { localStorage.setItem("gn-theme", mode); } catch (e) {}
+        var b = document.getElementById("themeBtn");
+        if (b) {
+          var dark = mode === "dark";
+          b.textContent = dark ? "\u2600\uFE0F Light" : "\uD83C\uDF19 Dark";
+          b.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+        }
+      };
+      (function () {
+        var mode = null;
+        try { mode = localStorage.getItem("gn-theme"); } catch (e) {}
+        if (mode !== "dark" && mode !== "light") {
+          try { mode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+          catch (e) { mode = "light"; }
+        }
+        document.documentElement.setAttribute("data-theme", mode);
+      })();
+    </script>
   </head>
   <body>
     <!-- Ticker -->
@@ -739,7 +809,24 @@
           <p class="live-status" id="liveStatus" aria-live="polite">Live feed: not checked yet — showing the baked-in Oct 28, 2026 snapshot.</p>
         </div>
         <button type="button" class="refresh-btn" id="refreshBtn">Refresh</button>
+        <button type="button" class="refresh-btn theme-btn" id="themeBtn" aria-label="Switch to dark mode">&#127769; Dark</button>
       </div>
+      <script>
+        // Theme toggle wiring: label follows the theme applied in <head>,
+        // click flips it and saves the choice. Runs here because the
+        // masthead button is already parsed at this point.
+        (function () {
+          var b = document.getElementById("themeBtn");
+          if (!b) return;
+          var cur = document.documentElement.getAttribute("data-theme");
+          var dark = cur === "dark";
+          b.textContent = dark ? "\u2600\uFE0F Light" : "\uD83C\uDF19 Dark";
+          b.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+          b.addEventListener("click", function () {
+            window.gnSetTheme(window.gnIsDark() ? "light" : "dark");
+          });
+        })();
+      </script>
 
 
       <!-- Breaking banner -->
@@ -1778,7 +1865,7 @@
         window.addEventListener("pointerup", function () { dragging = false; });
 
         function draw(t) {
-          var dark = darkMq.matches;
+          var dark = (typeof window.gnIsDark === "function") ? window.gnIsDark() : darkMq.matches;
           var ink = "242,239,231";
           var wire = "165,157,140";
           var face = "#0e0d0c";
@@ -2111,7 +2198,7 @@
         // Markets tape — TradingView's free widget, theme follows the reader's system.
         var tape = document.getElementById("tvTape");
         if (tape) {
-          var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark = (typeof window.gnIsDark === "function") ? window.gnIsDark() : window.matchMedia("(prefers-color-scheme: dark)").matches;
           var wrap = document.createElement("div");
           wrap.className = "tradingview-widget-container";
           var inner = document.createElement("div");
