@@ -549,9 +549,15 @@
       .masthead .live-status { font-size: 13px; font-weight: 700; color: var(--text); }
       .refresh-btn { border: 2px solid var(--accent); color: var(--accent); background: var(--surface); }
       .refresh-btn:hover { background: var(--accent); color: var(--accent-ink); }
-      .mainnav { background: #111010; padding: 12px 16px; border-bottom: 3px solid var(--accent); }
-      .mainnav a { border-color: rgba(255,255,255,.28); opacity: .9; }
-      .mainnav a:hover, .mainnav a:focus-visible { background: var(--accent); border-color: var(--accent); color: #fff; opacity: 1; text-decoration: none; }
+      /* Dark-mode fix: the nav background is fixed dark (#111010) in
+         both themes, but the links used color: var(--bg), which is
+         near-black (#0b0a09) in dark mode — 1.04:1, invisible. The
+         links must be fixed light on this fixed dark bar. Hover text
+         uses var(--accent-ink): #fff in light mode, dark ink in dark
+         mode, which reads far better on the red accent (5.88:1). */
+      .mainnav { background: #111010; color: #f5f1e6; padding: 12px 16px; border-bottom: 3px solid var(--accent); }
+      .mainnav a { color: #f5f1e6; border-color: rgba(255,255,255,.28); opacity: .9; }
+      .mainnav a:hover, .mainnav a:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); opacity: 1; text-decoration: none; }
       .breaking { border-width: 3px; box-shadow: var(--shadow); padding: 14px 18px; background: var(--surface); }
       .breaking .bbadge { font-size: 12px; padding: 6px 10px; }
       .breaking .btext { font-size: 17px; }
@@ -681,6 +687,20 @@
         .ticker-track { animation: none; }
         .ticker-label .dot::after { animation: none; }
         .urgent-dot, .masthead .live-status::before { animation: none; }
+      }
+
+      /* ---------- dark-mode fixes ----------
+         The globe layer panel is a fixed dark panel (#121110) in both
+         themes, but its pills/boxes used background: var(--bg), which
+         is near-black (#0b0a09) in dark mode — dark-on-dark, so the
+         layer toggle pills and the globe-info box blended into the
+         panel. The swatch dots also get a light ring in dark mode so
+         the 9px colour dots stay readable on the dark pills. */
+      @media (prefers-color-scheme: dark) {
+        .layer-panel { border-color: #3d362c; }
+        .layer-panel .ltoggle { background: #221e19; border-color: #57503f; }
+        .layer-panel .globe-info { background: #221e19; }
+        .ltoggle .swatch { box-shadow: 0 0 0 1px rgba(245,241,230,.45); }
       }
     </style>
   </head>
@@ -1511,7 +1531,7 @@
           { id: "disasters", label: "Natural disasters", color: "#2563eb" },
           { id: "fires", label: "Wildfires", color: "#ea580c" },
           { id: "weather", label: "Severe weather (US)", color: "#0e7490" },
-          { id: "conflict", label: "Conflict reports", color: "#9f1239" },
+          { id: "conflict", label: "Conflict reports", color: "#f43f5e" },
           { id: "protests", label: "Protest reports", color: "#7c3aed" },
           { id: "health", label: "Outbreak alerts", color: "#db2777" }
         ];
